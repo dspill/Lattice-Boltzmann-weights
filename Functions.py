@@ -672,7 +672,11 @@ def EnterSolution(TotalNumberOfShells, MaxTensorRank):
 def TestSolution(GrandTotalList, MaxTensorRank, SpacialDimension,
         ListOfTensorDimensions, Solution=[], atol=1e-8, rtol=1e-5):
     """Test validity of the equation A.w = b for given weights w and speed of
-    sound c_s^2
+    sound c_s^2.
+    The weights can be given as a parametric equation
+        w = w_0 + lambda_1 w_1 + lambda_2 w_2
+    like 
+        Solution = [CsSquared, [[w_00, w_01,...], [[w_10, w_11, ...], ...]
     """
     ShellSizes = np.array([len(Shell) for Shell in GrandTotalList])
     TotalNumberOfShells = len(GrandTotalList)
@@ -691,11 +695,11 @@ def TestSolution(GrandTotalList, MaxTensorRank, SpacialDimension,
         # read W
         W = np.zeros(TotalNumberOfShells + 1)
         for i_shell in range(TotalNumberOfShells + 1):
-            W[i_shell] = float(input("Please enter the weight for shell %d: " % (i_shell)))
+            W[i_shell] = float(input("Please enter the weight for shell %d: " 
+                % (i_shell)))
     else:
-        assert(len(Solution) == TotalNumberOfShells + 2)
         CsSquared = Solution[0]
-        W = Solution[1:]
+        WList = Solution[1]
 
     # set A
     n_row = LeftHandSideMatrix.shape[0]
@@ -707,8 +711,9 @@ def TestSolution(GrandTotalList, MaxTensorRank, SpacialDimension,
     A[0,1:] = ShellSizes
     A[1:,1:] = LeftHandSideMatrix
 
-    # set B
+    # set B and 0-Vector
     B = [1.]
+    Zero = [0.]
     for k in range(MaxTensorRank // 2):
         # TensorRank = 2 * k + 2
         LocalDimensionOfTensorSpace = ListOfTensorDimensions[k]
@@ -716,20 +721,29 @@ def TestSolution(GrandTotalList, MaxTensorRank, SpacialDimension,
         # j loop is loop over random vectors
         for j in range(LocalDimensionOfTensorSpace):
             B.append(CsSquared**(k+1))
+            Zero.append(0.)
 
     B = np.array(B)
+    Zero = np.array(Zero)
 
-    # compare
-    if np.allclose(B, A.dot(W), atol=atol, rtol=rtol):
-        Echo("The given solution solves the system.")
-        Echo('A.w - b = ')
-        print(A.dot(W) - B)
-        return 0
-    else: 
-        Echo("The given solution does NOT solve the system.")
-        Echo('A.w - b = ')
-        iprint(A.dot(W) - B)
-        return 1
+    for i_W, W in enumerate(WList):
+        assert(len(W) == TotalNumberOfShells + 1)
+        if i_W == 0:
+            C = B
+        else: 
+            C = Zero
+
+        # compare
+        if np.allclose(C, A.dot(W), atol=atol, rtol=rtol):
+            Echo("The given solution solves the system.")
+            Echo('A.w - b = ')
+            print(A.dot(W) - C)
+            return 0
+        else: 
+            Echo("The given solution does NOT solve the system.")
+            Echo('A.w - b = ')
+            iprint(A.dot(W) - C)
+            return 1
 
 
 # Subshell analysis
