@@ -52,11 +52,6 @@ by the following command line arguments:""")
         help="Answer all prompts with yes (may overwrite file data.npz)")
 
     parser.add_argument(
-        "--test-poly", action='store_true',
-        help="Test wether a given set of weights is a solution. Weights "
-        "must be given interactively as polynomials in the speed of sound.")
-
-    parser.add_argument(
         "--test", nargs='*', type=float,
         help="Test wether a given set of weights together with a speed of "
         "sound is a solution. The solution can be supplied interactively if "
@@ -672,24 +667,6 @@ def EnterSolution(TotalNumberOfShells, MaxTensorRank):
                 = float(input("  c_s^%d: " % Rank))
 
     return SolutionMatrix
-
-
-def TestSolutionPoly(TotalNumberOfShells, MaxTensorRank, LeftHandSideMatrix, 
-        RightHandSideMatrix, SolutionMatrix):
-    """Test solution that is given as polynomials in the speed of sound"""
-    EchoError("""Please enter the solution that you want to check as
-polynomials c_s^2. You should at least give nine decimal places.""")
-    Echo('\n')
-    SolutionMatrix = EnterSolution(TotalNumberOfShells, MaxTensorRank)
-    if np.allclose(LeftHandSideMatrix.dot(SolutionMatrix),
-                   RightHandSideMatrix):
-        Echo("The given solution solves the system.")
-        return 0
-    else: 
-        Echo("The given solution does NOT solve the system.")
-        Echo(LeftHandSideMatrix.dot(SolutionMatrix))
-        Echo(RightHandSideMatrix)
-        return 1
 
 
 def TestSolution(GrandTotalList, MaxTensorRank, SpacialDimension,
