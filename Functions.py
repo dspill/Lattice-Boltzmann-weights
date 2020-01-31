@@ -955,7 +955,6 @@ def TestSolution(GrandTotalList, MaxTensorRank, SpacialDimension,
 
     ShellSizes = np.array([1] + [len(Shell) for Shell in GrandTotalList])
     TotalNumberOfShells = len(GrandTotalList) # NOT including zero shell!
-
     # Type solution by hand
     if Solution is None:
         # Input speed of sound

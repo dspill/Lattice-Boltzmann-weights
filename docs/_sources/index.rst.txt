@@ -105,9 +105,6 @@ Usage
                      "latex_tables.dat" in form of a latex
                      table. This will append to any existing
                      file.
-
-
-
 .. automodule:: LBweights
    :members:
 
